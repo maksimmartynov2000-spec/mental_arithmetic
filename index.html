@@ -201,7 +201,7 @@
     <div class="big">
       <div class="stat"><span>Время</span><strong id="resTime">0:00</strong></div>
       <div class="stat"><span>Верно</span><strong id="resScore">0<small> / 20</small></strong></div>
-      <div class="stat wide"><span>Среднее время на пример</span><strong id="resAvg">0,0 с</strong></div>
+      <div class="stat wide"><span>Среднее время на верный ответ</span><strong id="resAvg">0,0 с</strong></div>
     </div>
     <div class="badge" id="resBadge"></div>
     <div class="errs" id="resErrs"></div>
@@ -346,7 +346,8 @@
   /* ---------- formatting ---------- */
   function fmt(ms){ var s=Math.floor(ms/1000); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
   function fmtPrecise(ms){ var t=Math.round(ms/100)/10, m=Math.floor(t/60), s=(t-m*60).toFixed(1); if(s.length<4) s="0"+s; return m+":"+s.replace(".",","); }
-  function fmtAvg(ms,n){ return (ms/n/1000).toFixed(1).replace(".",",")+" с"; }
+  // Среднее время = общее время / число верных ответов
+  function fmtAvg(ms,ok){ return ok>0 ? (ms/ok/1000).toFixed(1).replace(".",",")+" с" : "—"; }
   function plural(n){ var m10=n%10, m100=n%100;
     if(m10===1&&m100!==11) return "пример";
     if(m10>=2&&m10<=4&&(m100<10||m100>=20)) return "примера";
@@ -464,7 +465,7 @@
   function showResult(e, badge, fromHist){
     var N = e.n || 20;
     $("resName").textContent = TYPES[e.t].name+" · "+N+" "+plural(N);
-    $("resAvg").textContent = fmtAvg(e.ms,N);
+    $("resAvg").textContent = fmtAvg(e.ms,e.ok);
     $("resTime").textContent = fmtPrecise(e.ms);
     $("resScore").innerHTML = e.ok+"<small> / "+N+"</small>";
     var b=$("resBadge");
@@ -550,7 +551,7 @@
     h.forEach(function(r,idx){
       var n=r.n||20;
       html += '<div class="hrow'+(r.items?" open":"")+'" data-i="'+idx+'"><div><b>'+TYPES[r.t].name+'</b><small>'+fmtDate(r.at)+'</small></div>'+
-              '<div class="t">'+fmtPrecise(r.ms)+'<small>'+fmtAvg(r.ms,n)+' / пример</small></div>'+
+              '<div class="t">'+fmtPrecise(r.ms)+'<small>'+fmtAvg(r.ms,r.ok)+' / верный</small></div>'+
               '<div class="s '+(r.ok===n?"full":"")+'">'+r.ok+'/'+n+'</div>'+
               '<div class="chev">'+(r.items?"›":"")+'</div></div>';
     });
